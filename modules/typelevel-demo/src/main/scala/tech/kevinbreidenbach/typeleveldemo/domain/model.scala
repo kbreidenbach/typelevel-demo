@@ -181,14 +181,14 @@ case class Person(
 object Person {
   given Show[Person] =
     person => show"""Person:
-                    |\tid: ${person.id}
-                    |\temail: ${person.email}
-                    |\tfirstname: ${person.firstname}
-                    |\tlastname: ${person.lastname}
-                    |\tstatus: ${person.status}
-                    |\tcreatedOn: ${person.createdOn}
-                    |\tupdatedOn: ${person.updatedOn}
-                    |\tdeletedOn: ${person.deletedOn}
+                    |\tid: ${person.id.show}
+                    |\temail: ${person.email.show}
+                    |\tfirstname: ${person.firstname.show}
+                    |\tlastname: ${person.lastname.show}
+                    |\tstatus: ${person.status.show}
+                    |\tcreatedOn: ${person.createdOn.show}
+                    |\tupdatedOn: ${person.updatedOn.show}
+                    |\tdeletedOn: ${person.deletedOn.show}
                     |""".stripMargin
 
   given LogContext[Person] with
