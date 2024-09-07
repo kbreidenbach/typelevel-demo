@@ -9,6 +9,7 @@ import tech.kevinbreidenbach.typeleveldemo.health.Health
 import tech.kevinbreidenbach.typeleveldemo.health.Status.Running
 import tech.kevinbreidenbach.typeleveldemo.health.Status.ShuttingDown
 import tech.kevinbreidenbach.typeleveldemo.health.Status.StartingUp
+import tech.kevinbreidenbach.typeleveldemo.persistence.Persistence
 import tech.kevinbreidenbach.typeleveldemo.resources.Resources
 import tech.kevinbreidenbach.typeleveldemo.util.LogLevel
 import tech.kevinbreidenbach.typeleveldemo.util.RunWithRetry
@@ -63,14 +64,14 @@ object Main
           .map(_ => ExitCode.Error)
       )
 
-  // Code below here runs in F[_] context
   private def app[F[_]: Async: Network: StructuredLogger: Trace](appConfig: AllConfig): Resource[F, F[ExitCode]] =
     for {
       _         <- Resource.eval(traceAndLog("People Service Starting..."))
       health    <- Resource.eval(Health.make[F])
       _         <- Resource.eval(health.updateSystemStatus(StartingUp))
       resources <- Resources.make[F](appConfig)
-      runWithRetry = RunWithRetry.make[F](appConfig.retryConfig)
+      given RunWithRetry[F] = RunWithRetry.make[F](appConfig.retryConfig)
+      persistence           = Persistence.make(resources.transactor)
       exitCode <-
         Resource.eval(
           Stream
