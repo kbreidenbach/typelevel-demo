@@ -28,13 +28,13 @@ object DatabaseLogHandler {
     given Show[Sql] = Show.show(_.value)
   }
 
-  opaque type Args = List[_]
+  opaque type Args = List[?]
 
   private object Args {
-    def apply(value: List[_]): Args = value
+    def apply(value: List[?]): Args = value
 
     extension (args: Args) {
-      private def value: List[_] = args
+      private def value: List[?] = args
     }
 
     given Show[Args] = Show.show(_.value.mkString(", "))

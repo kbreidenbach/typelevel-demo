@@ -2,26 +2,25 @@ import sbt.*
 
 object Dependencies {
 
-  val scala3 = "3.3.3"
+  val scala3 = "3.5.0"
 
-  val catsVersion              = "2.10.0"
-  val catsEffectVersion        = "3.5.2"
-  val catsRetryVersion         = "3.1.0"
-  val fs2Version               = "3.9.2"
-  val fs2KafkaVersion          = "3.2.0"
-  val circeVersion             = "0.14.6"
+  val catsVersion              = "2.12.0"
+  val catsEffectVersion        = "3.5.4"
+  val catsRetryVersion         = "3.1.3"
+  val fs2Version               = "3.11.0"
+  val fs2KafkaVersion          = "3.5.1"
+  val circeVersion             = "0.14.10"
   val declineVersion           = "2.4.1"
-  val log4catsVersion          = "2.6.0"
-  val natchezExtrasVersion     = "8.1.0"
-  val logbackClassicVersion    = "1.4.11"
-  val logstashEncoderVersion   = "7.4"
-  val doobieVersion            = "1.0.0-RC4"
-  val http4sVersion            = "0.23.16"
-  val javaUuidGeneratorVersion = "5.0.0"
+  val log4catsVersion          = "2.7.0"
+  val natchezExtrasVersion     = "8.1.1"
+  val logbackClassicVersion    = "1.5.7"
+  val logstashEncoderVersion   = "8.0"
+  val doobieVersion            = "1.0.0-RC5"
+  val http4sVersion            = "0.23.27"
   val apiSpecVersion           = "0.11.3"
-  val tapirVersion             = "1.11.1"
-  val flywayVersion            = "10.0.0"
-  val refinedVersion           = "0.11.1"
+  val tapirVersion             = "1.11.2"
+  val flywayVersion            = "10.17.3"
+  val refinedVersion           = "0.11.2"
 
   lazy val mainLibraries: Seq[ModuleID] = Seq(
     "org.typelevel"                 %% "cats-core"                     % catsVersion,
@@ -46,7 +45,6 @@ object Dependencies {
     "com.ovoenergy"                 %% "natchez-extras-datadog-stable" % natchezExtrasVersion,
     "ch.qos.logback"                 % "logback-classic"               % logbackClassicVersion,
     "net.logstash.logback"           % "logstash-logback-encoder"      % logstashEncoderVersion,
-    "com.fasterxml.uuid"             % "java-uuid-generator"           % javaUuidGeneratorVersion,
     "com.softwaremill.sttp.apispec" %% "openapi-circe-yaml"            % apiSpecVersion,
     "com.softwaremill.sttp.tapir"   %% "tapir-core"                    % tapirVersion,
     "com.softwaremill.sttp.tapir"   %% "tapir-http4s-server"           % tapirVersion,

@@ -7,7 +7,6 @@ import tech.kevinbreidenbach.typeleveldemo.util.LogContext
 
 import cats.Show
 import cats.Show.Shown
-import cats.implicits.showInterpolator
 import cats.syntax.show.given
 import eu.timepit.refined.api.Refined
 import eu.timepit.refined.auto.*

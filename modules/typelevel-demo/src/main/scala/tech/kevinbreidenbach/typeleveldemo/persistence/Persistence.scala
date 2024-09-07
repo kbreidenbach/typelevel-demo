@@ -43,10 +43,11 @@ class PostgresPersistence[F[_]: Async: StructuredLogger: Trace: RunWithRetry] pr
   private given span: SpanName = SpanName("postgres-persistence")
 
   extension [T: LogContext, R](either: Either[SQLException, R]) {
-    private def logAndAdapt(message: String, ctx: T): Either[DatabasePersistenceError, R] =
-      either.leftMap { e =>
-        LogLevel.Error(message, ctx.some, e.some)
-        DatabasePersistenceError("e", e.some)
+    private def logAndAdapt(message: String, ctx: T): F[Either[DatabasePersistenceError, R]] =
+      either match {
+        case Left(e)     =>
+          LogLevel.Error(message, ctx.some, e.some).log >> DatabasePersistenceError("e", e.some).asLeft[R].pure
+        case Right(r: R) => r.asRight[DatabasePersistenceError].pure
       }
   }
 
@@ -58,7 +59,7 @@ class PostgresPersistence[F[_]: Async: StructuredLogger: Trace: RunWithRetry] pr
           .unique
           .transact(transactor)
           .attemptSql
-          .map(_.logAndAdapt(show"error upserting ${person}", person))
+          .flatMap(_.logAndAdapt(show"error upserting ${person}", person))
       }
     }
 
@@ -69,7 +70,7 @@ class PostgresPersistence[F[_]: Async: StructuredLogger: Trace: RunWithRetry] pr
         .to[List]
         .transact(transactor)
         .attemptSql
-        .map(_.logAndAdapt(show"error finding person with firstname ${firstname}", firstname))
+        .flatMap(_.logAndAdapt(show"error finding person with firstname ${firstname}", firstname))
     }
 
   override def findPersonByLastname(lastname: Lastname): F[Either[DatabasePersistenceError, List[Person]]] =
@@ -79,7 +80,7 @@ class PostgresPersistence[F[_]: Async: StructuredLogger: Trace: RunWithRetry] pr
         .to[List]
         .transact(transactor)
         .attemptSql
-        .map(_.logAndAdapt(show"error finding person with lastname ${lastname}", lastname))
+        .flatMap(_.logAndAdapt(show"error finding person with lastname ${lastname}", lastname))
     }
 
   override def findPersonByEmail(email: Email): F[Either[DatabasePersistenceError, Option[Person]]] =
@@ -89,7 +90,7 @@ class PostgresPersistence[F[_]: Async: StructuredLogger: Trace: RunWithRetry] pr
         .option
         .transact(transactor)
         .attemptSql
-        .map(_.logAndAdapt(show"error finding person with email ${email}", email))
+        .flatMap(_.logAndAdapt(show"error finding person with email ${email}", email))
     }
 
   override def findPersonById(id: ID): F[Either[DatabasePersistenceError, Option[Person]]] =
@@ -99,7 +100,7 @@ class PostgresPersistence[F[_]: Async: StructuredLogger: Trace: RunWithRetry] pr
         .option
         .transact(transactor)
         .attemptSql
-        .map(_.logAndAdapt(show"error finding person with id ${id}", id))
+        .flatMap(_.logAndAdapt(show"error finding person with id ${id}", id))
     }
 
   override def deletePersonByEmail(email: Email): F[Either[DatabasePersistenceError, Option[Person]]] =
@@ -110,7 +111,7 @@ class PostgresPersistence[F[_]: Async: StructuredLogger: Trace: RunWithRetry] pr
           .option
           .transact(transactor)
           .attemptSql
-          .map(_.logAndAdapt(show"error deleting person with email ${email}", email))
+          .flatMap(_.logAndAdapt(show"error deleting person with email ${email}", email))
       }
     }
 
@@ -122,7 +123,7 @@ class PostgresPersistence[F[_]: Async: StructuredLogger: Trace: RunWithRetry] pr
           .option
           .transact(transactor)
           .attemptSql
-          .map(_.logAndAdapt(show"error deleting person with id ${id}", id))
+          .flatMap(_.logAndAdapt(show"error deleting person with id ${id}", id))
       }
     }
 }
