@@ -9,6 +9,8 @@ import tech.kevinbreidenbach.typeleveldemo.health.Health
 import tech.kevinbreidenbach.typeleveldemo.health.Status.Running
 import tech.kevinbreidenbach.typeleveldemo.health.Status.ShuttingDown
 import tech.kevinbreidenbach.typeleveldemo.health.Status.StartingUp
+import tech.kevinbreidenbach.typeleveldemo.http.DocumentedRoutes
+import tech.kevinbreidenbach.typeleveldemo.http.Endpoints
 import tech.kevinbreidenbach.typeleveldemo.persistence.Persistence
 import tech.kevinbreidenbach.typeleveldemo.resources.Resources
 import tech.kevinbreidenbach.typeleveldemo.util.LogLevel
@@ -72,6 +74,8 @@ object Main
       resources <- Resources.make[F](appConfig)
       given RunWithRetry[F] = RunWithRetry.make[F](appConfig.retryConfig)
       persistence           = Persistence.make(resources.transactor)
+      endpoints             = Endpoints.make
+      routes                = DocumentedRoutes.make(endpoints, health)
       exitCode <-
         Resource.eval(
           Stream
