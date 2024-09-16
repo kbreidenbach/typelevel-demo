@@ -16,4 +16,4 @@ CREATE TABLE "point_transactions"
 CREATE INDEX "point_transactions_created_on_idx" ON point_transactions (created_on);
 CREATE INDEX "point_transactions_totals_idx" ON point_transactions (person, action, created_on);
 CREATE INDEX "point_transactions_signed_idx"
-    ON point_transactions ((CASE WHEN action = 'Add' THEN points ELSE - points END) );
+    ON point_transactions ((CASE WHEN "action" = 'Add' THEN points ELSE -points END) );

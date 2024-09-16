@@ -23,7 +23,7 @@ val upsertPersonSql: Person => Fragment = person =>
             updated_on = current_timestamp
           WHERE
             deleted_on IS NULL
-        RETURNING email, first_name, last_name, status, created_on, updated_on, deleted_on;""".stripMargin
+        RETURNING email, first_name, last_name, status, created_on, updated_on, deleted_on;"""
 
 //noinspection SqlNoDataSourceInspection
 val findPersonByFirstnameSql: Firstname => Fragment = firstname =>

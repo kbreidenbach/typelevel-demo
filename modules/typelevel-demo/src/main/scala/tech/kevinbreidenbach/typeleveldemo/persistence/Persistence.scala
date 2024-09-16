@@ -6,9 +6,13 @@ import tech.kevinbreidenbach.typeleveldemo.domain.Email
 import tech.kevinbreidenbach.typeleveldemo.domain.Email.given
 import tech.kevinbreidenbach.typeleveldemo.domain.Firstname
 import tech.kevinbreidenbach.typeleveldemo.domain.ID
+import tech.kevinbreidenbach.typeleveldemo.domain.IncomingTransaction
 import tech.kevinbreidenbach.typeleveldemo.domain.Lastname
 import tech.kevinbreidenbach.typeleveldemo.domain.Person
+import tech.kevinbreidenbach.typeleveldemo.domain.PersonID
+import tech.kevinbreidenbach.typeleveldemo.domain.Points
 import tech.kevinbreidenbach.typeleveldemo.domain.SpanName
+import tech.kevinbreidenbach.typeleveldemo.domain.Transaction
 import tech.kevinbreidenbach.typeleveldemo.util.LogContext
 import tech.kevinbreidenbach.typeleveldemo.util.LogLevel
 import tech.kevinbreidenbach.typeleveldemo.util.RunWithRetry
@@ -29,6 +33,8 @@ trait Persistence[F[_]] {
   def findPersonById(id: ID): F[Either[DatabasePersistenceError, Option[Person]]]
   def deletePersonByEmail(email: Email): F[Either[DatabasePersistenceError, Option[Person]]]
   def deletePersonByID(id: ID): F[Either[DatabasePersistenceError, Option[Person]]]
+  def insertPointsTransaction(transaction: IncomingTransaction): F[Either[DatabasePersistenceError, Transaction]]
+  def findPointsTotalForPerson(personId: PersonID): F[Either[DatabasePersistenceError, Points]]
 }
 
 object Persistence {
@@ -125,5 +131,30 @@ class PostgresPersistence[F[_]: Async: StructuredLogger: Trace: RunWithRetry] pr
           .attemptSql
           .flatMap(_.logAndAdapt(show"error deleting person with id ${id}", id))
       }
+    }
+
+  override def insertPointsTransaction(
+      transaction: IncomingTransaction
+  ): F[Either[DatabasePersistenceError, Transaction]] =
+    Trace[F].span(span.show) {
+      RunWithRetry[F].retry("upsertPerson") {
+        insertPointsTransactionSql(transaction)
+          .query[Transaction]
+          .unique
+          .transact(transactor)
+          .attemptSql
+          .flatMap(_.logAndAdapt(show"error inserting ${transaction}", transaction))
+      }
+    }
+
+  override def findPointsTotalForPerson(personId: PersonID): F[Either[DatabasePersistenceError, Points]] =
+    Trace[F].span(span.show) {
+      findPointsTotalSql(personId)
+        .query[Points]
+        .option
+        .transact(transactor)
+        .attemptSql
+        .map(_.map(_.getOrElse(Points(0L))))
+        .flatMap(_.logAndAdapt(show"error finding points total for person with id ${personId}", personId))
     }
 }

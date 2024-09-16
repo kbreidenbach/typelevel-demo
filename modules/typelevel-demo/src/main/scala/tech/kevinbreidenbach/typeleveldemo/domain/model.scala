@@ -67,22 +67,22 @@ object ID {
     }
 }
 
-opaque type PERSON_ID = UUID
+opaque type PersonID = UUID
 
-object PERSON_ID {
+object PersonID {
 
-  def apply(value: UUID): PERSON_ID = value
+  def apply(value: UUID): PersonID = value
 
-  def unapply(personId: PERSON_ID): Option[UUID] = Some(personId)
+  def unapply(personId: PersonID): Option[UUID] = Some(personId)
 
-  extension (personId: PERSON_ID) {
+  extension (personId: PersonID) {
     def value: UUID = personId
   }
 
-  given Show[PERSON_ID] = _.value.toString
+  given Show[PersonID] = _.value.toString
 
-  given LogContext[PERSON_ID] with
-    extension (personId: PERSON_ID) {
+  given LogContext[PersonID] with
+    extension (personId: PersonID) {
       def logContext: Map[String, String] = Map("person_id" -> personId.show)
     }
 }
@@ -251,9 +251,34 @@ object Person {
     }
 }
 
+case class IncomingTransaction(
+    personId: PersonID,
+    points: Points,
+    action: Action
+)
+
+object IncomingTransaction {
+  given Show[IncomingTransaction] =
+    transaction => show"""Transaction:
+                         |\tpersonId: ${transaction.personId.show}
+                         |\tpoints: ${transaction.points.show}
+                         |\taction: ${transaction.action.show}
+                         |""".stripMargin
+
+  given LogContext[IncomingTransaction] with
+    extension (transaction: IncomingTransaction) {
+      def logContext: Map[String, String] =
+        Map(
+          "personId" -> transaction.personId.show,
+          "points"   -> transaction.points.show,
+          "action"   -> transaction.action.show
+        )
+    }
+}
+
 case class Transaction(
     id: ID,
-    personId: PERSON_ID,
+    personId: PersonID,
     points: Points,
     action: Action,
     createdOn: CreatedOn
