@@ -38,6 +38,15 @@ object Status {
   given Show[Status] = _.toString
 }
 
+enum Action {
+  case Add
+  case Remove
+}
+
+object Action {
+  given Show[Action] = _.toString
+}
+
 opaque type ID = UUID
 
 object ID {
@@ -55,6 +64,26 @@ object ID {
   given LogContext[ID] with
     extension (id: ID) {
       def logContext: Map[String, String] = Map("id" -> id.show)
+    }
+}
+
+opaque type PERSON_ID = UUID
+
+object PERSON_ID {
+
+  def apply(value: UUID): PERSON_ID = value
+
+  def unapply(personId: PERSON_ID): Option[UUID] = Some(personId)
+
+  extension (personId: PERSON_ID) {
+    def value: UUID = personId
+  }
+
+  given Show[PERSON_ID] = _.value.toString
+
+  given LogContext[PERSON_ID] with
+    extension (personId: PERSON_ID) {
+      def logContext: Map[String, String] = Map("person_id" -> personId.show)
     }
 }
 
@@ -158,13 +187,28 @@ object DeletedOn {
 
   def apply(value: Instant): DeletedOn = value
 
-  def unapply(DeletedOn: DeletedOn): Option[Instant] = Some(DeletedOn)
+  def unapply(deletedOn: DeletedOn): Option[Instant] = Some(deletedOn)
 
-  extension (DeletedOn: DeletedOn) {
-    def value: Instant = DeletedOn
+  extension (deletedOn: DeletedOn) {
+    def value: Instant = deletedOn
   }
 
   given Show[DeletedOn] = _.value.toString
+}
+
+opaque type Points = Long
+
+object Points {
+
+  def apply(value: Long): Points = value
+
+  def unapply(points: Points): Option[Long] = Some(points)
+
+  extension (points: Points) {
+    def value: Long = points
+  }
+
+  given Show[Points] = _.value.toString
 }
 
 case class Person(
@@ -203,6 +247,37 @@ object Person {
           "createdOn" -> person.createdOn.show,
           "updatedOn" -> person.updatedOn.show,
           "deletedOn" -> person.deletedOn.show
+        )
+    }
+}
+
+case class Transaction(
+    id: ID,
+    personId: PERSON_ID,
+    points: Points,
+    action: Action,
+    createdOn: CreatedOn
+)
+
+object Transaction {
+  given Show[Transaction] =
+    transaction => show"""Transaction:
+                         |\tid: ${transaction.id.show}
+                         |\tpersonId: ${transaction.personId.show}
+                         |\tpoints: ${transaction.points.show}
+                         |\taction: ${transaction.action.show}
+                         |\tcreatedOn: ${transaction.createdOn.show}
+                         |""".stripMargin
+
+  given LogContext[Transaction] with
+    extension (transaction: Transaction) {
+      def logContext: Map[String, String] =
+        Map(
+          "id"        -> transaction.id.show,
+          "personId"  -> transaction.personId.show,
+          "points"    -> transaction.points.show,
+          "action"    -> transaction.action.show,
+          "createdOn" -> transaction.createdOn.show
         )
     }
 }

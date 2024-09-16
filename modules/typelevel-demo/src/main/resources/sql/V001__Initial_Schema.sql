@@ -21,6 +21,9 @@ CREATE TABLE "people"
 COMMENT ON COLUMN people.status IS E' ||
 E''The current status of the person. "deleted" allows us to soft delete a record';
 
+CREATE INDEX people_email_idx ON people (email);
+CREATE INDEX people_status_idx ON people (status);
+
 CREATE OR REPLACE FUNCTION set_updated_on()
     RETURNS TRIGGER AS
 $$
