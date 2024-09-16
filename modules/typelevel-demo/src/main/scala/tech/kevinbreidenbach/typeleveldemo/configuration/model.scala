@@ -208,7 +208,21 @@ object KafkaPeopleTopicName {
   }
 }
 
-final case class KafkaConfig(bootstrapServers: KafkaBootstrapServers, peopleTopicName: KafkaPeopleTopicName)
+opaque type KafkaTransactionTopicName = String
+
+object KafkaTransactionTopicName {
+  def apply(value: String): KafkaTransactionTopicName = value
+
+  extension (kafkaTransactionTopicName: KafkaTransactionTopicName) {
+    def value: String = kafkaTransactionTopicName
+  }
+}
+
+final case class KafkaConfig(
+    bootstrapServers: KafkaBootstrapServers,
+    peopleTopicName: KafkaPeopleTopicName,
+    transactionTopicName: KafkaTransactionTopicName
+)
 
 final case class HttpServerConfig(port: HttpPort, host: HttpHost, idleTimeout: HttpIdleTimeout)
 

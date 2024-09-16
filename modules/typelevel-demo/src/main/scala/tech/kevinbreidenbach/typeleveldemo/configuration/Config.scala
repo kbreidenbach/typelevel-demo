@@ -73,7 +73,11 @@ object Config {
     Opts
       .env[String]("KAFKA_PEOPLE_TOPIC", "The topic to publish people on (default: people.json)")
       .withDefault("people.json")
-      .map(KafkaPeopleTopicName.apply)
+      .map(KafkaPeopleTopicName.apply),
+    Opts
+      .env[String]("KAFKA_TRANSACTION_TOPIC", "The topic consume transactions on (default: transaction.json)")
+      .withDefault("transaction.json")
+      .map(KafkaTransactionTopicName.apply)
   ).mapN(KafkaConfig.apply)
 
   private val datadogConfig: Opts[DatadogConfig] = (
